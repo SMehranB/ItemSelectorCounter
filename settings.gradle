@@ -1,0 +1,3 @@
+include ':ItemSelectorView'
+include ':app'
+rootProject.name = "ItemSelectorViewSample"
