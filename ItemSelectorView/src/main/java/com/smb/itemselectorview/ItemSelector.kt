@@ -7,6 +7,7 @@ import android.util.AttributeSet
 import android.view.View
 import androidx.annotation.FontRes
 import androidx.core.content.ContextCompat
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.drawable.DrawableCompat.setTint
 import androidx.core.graphics.drawable.toBitmap
 import kotlin.math.abs
@@ -19,13 +20,14 @@ class ItemSelector : View {
         initAttributes(context, attributeSet)
     }
 
-    var verticalPadding = dpToPixel(8)
+    var verticalPadding = dpToPixel(16)
     var horizontalPadding = dpToPixel(16)
+
     private val backgroundPaint = Paint(Paint.ANTI_ALIAS_FLAG)
 
     private var mBackgroundColor: Int = Color.LTGRAY
     private val backgroundRecF = RectF()
-    private var cornerRadius: Float = dpToPixel(8)
+    var cornerRadius: Float = dpToPixel(8)
 
     private val drawablePaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private var arrowLeftBitmap: Bitmap? = null
@@ -33,24 +35,48 @@ class ItemSelector : View {
     private var drawableLeftX: Float = 0f
     private var drawableY: Float = 0f
     private var drawableRightX: Float = 0f
-    private val drawableDimen: Int = dpToPixel(32).toInt()
-
+    var drawableDimen: Int = dpToPixel(32).toInt()
     var dividerColor = Color.GRAY
+
     private var textHeight: Float = 0f
     private val textPaint = TextPaint(TextPaint.ANTI_ALIAS_FLAG)
-    var textX: Float = 0f
-    var textY: Float = 0f
-    var mText: String = "Item 1"
-    var mTextSize: Float = dpToPixel(16)
+    private var textX: Float = 0f
+    private var textY: Float = 0f
+    private var mText: String = "Item 1"
+    private var textSize: Float = dpToPixel(16)
     var textColor: Int = Color.DKGRAY
     var textStyle: Int = Typeface.NORMAL
 
     @FontRes
     var textFont: Int = 0
 
-    private var items: ArrayList<String> = arrayListOf(mText)
+    private var items: MutableList<String> = arrayListOf(mText)
 
     private fun initAttributes(context: Context, attributeSet: AttributeSet?) {
+
+        val attrs = context.theme.obtainStyledAttributes(attributeSet, R.styleable.ItemSelector, 0, 0)
+        attrs.apply {
+
+            verticalPadding = getDimension(R.styleable.ItemSelector_is_verticalPadding, verticalPadding)
+            horizontalPadding = getDimension(R.styleable.ItemSelector_is_horizontalPadding, horizontalPadding)
+
+            cornerRadius = getDimension(R.styleable.ItemSelector_is_cornerRadius, cornerRadius)
+
+            drawableDimen = getDimension(R.styleable.ItemSelector_is_buttonSize, drawableDimen.toFloat()).toInt()
+            dividerColor = getInteger(R.styleable.ItemSelector_is_dividerColor, dividerColor)
+
+            textSize = getDimension(R.styleable.ItemSelector_is_textSize, textSize)
+            textColor = getInteger(R.styleable.ItemSelector_is_textColor, textColor)
+            textStyle = getInt(R.styleable.ItemSelector_is_textStyle, textStyle)
+            textFont = getResourceId(R.styleable.ItemSelector_is_textFont, 0)
+
+            val itemsArray = getResourceId(R.styleable.ItemSelector_is_items, 0)
+            if (itemsArray != 0) {
+                items = resources.getStringArray(itemsArray).toMutableList()
+            }
+
+            recycle()
+        }
 
         val arrowLeft = ContextCompat.getDrawable(context, R.drawable.arrow_left_18)
         val arrowRight = ContextCompat.getDrawable(context, R.drawable.arrow_right_24)
@@ -59,8 +85,6 @@ class ItemSelector : View {
 
         arrowLeftBitmap = arrowLeft?.toBitmap(drawableDimen, drawableDimen, Bitmap.Config.ARGB_8888)
         arrowRightBitmap = arrowRight?.toBitmap(drawableDimen, drawableDimen, Bitmap.Config.ARGB_8888)
-
-
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -109,7 +133,7 @@ class ItemSelector : View {
 
         drawablePaint.color = dividerColor
 
-        drawableY = 0f
+        drawableY = height.div(2f).minus(drawableDimen.div(2))
 
         drawableLeftX = 0f
         drawableRightX = width.minus(drawableDimen).toFloat()
@@ -128,9 +152,15 @@ class ItemSelector : View {
         textHeight = getTextHeight()
 
         textPaint.apply {
-            textSize = mTextSize
+            textSize = this@ItemSelector.textSize
             color = textColor
             textAlign = Paint.Align.CENTER
+
+            typeface = Typeface.create(Typeface.DEFAULT, textStyle)
+            if (textFont != 0) {
+                val tf = ResourcesCompat.getFont(context, textFont)
+                typeface = Typeface.create(tf, textStyle)
+            }
         }
     }
 
