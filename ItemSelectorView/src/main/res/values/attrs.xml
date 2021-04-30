@@ -6,6 +6,7 @@
         <attr name="is_horizontalPadding" format="dimension" />
         <attr name="is_cornerRadius" format="dimension" />
         <attr name="is_buttonSize" format="dimension" />
+        <attr name="is_drawableHorizontalPadding" format="dimension" />
         <attr name="is_dividerColor" format="color" />
         <attr name="is_textSize" format="dimension" />
         <attr name="is_textColor" format="color" />
@@ -16,6 +17,9 @@
         </attr>
         <attr name="is_textFont" format="reference" />
         <attr name="is_items" format="reference" />
+        <attr name="is_backgroundColor" format="color" />
+        <attr name="is_drawableTint" format="color" />
+        <attr name="is_animationDuration" format="integer" />
 
     </declare-styleable>
 </resources>
