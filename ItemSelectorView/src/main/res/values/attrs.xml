@@ -5,7 +5,7 @@
         <attr name="is_verticalPadding" format="dimension" />
         <attr name="is_horizontalPadding" format="dimension" />
         <attr name="is_cornerRadius" format="dimension" />
-        <attr name="is_buttonSize" format="dimension" />
+        <attr name="is_drawableSize" format="dimension" />
         <attr name="is_drawableHorizontalPadding" format="dimension" />
         <attr name="is_dividerColor" format="color" />
         <attr name="is_textSize" format="dimension" />

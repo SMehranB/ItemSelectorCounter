@@ -2,28 +2,43 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:orientation="vertical"
-    android:background="@color/black"
-    android:layout_height="match_parent"
     android:id="@+id/viewHolder"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
     tools:context=".MainActivity">
 
     <com.smb.itemselectorview.ItemSelector
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        app:is_textStyle="italic|bold"
-        app:is_drawableHorizontalPadding="8dp"
+        android:layout_marginTop="16dp"
         app:is_animationDuration="300"
+        app:is_backgroundColor="#2B7FFF"
+        app:is_drawableSize="30dp"
+        app:is_cornerRadius="25dp"
+        app:is_drawableHorizontalPadding="8dp"
+        app:is_drawableTint="@color/white"
+        app:is_horizontalPadding="32dp"
         app:is_items="@array/sample_items"
         app:is_textColor="@color/white"
-        app:is_buttonSize="40dp"
-        app:is_drawableTint="@color/white"
-        app:is_cornerRadius="25dp"
-        app:is_backgroundColor="@color/purple_200"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:is_textStyle="italic|bold"
+        app:is_verticalPadding="24dp"/>
+
+    <com.smb.itemselectorview.ItemSelector
+        android:id="@+id/pizzaSizes"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        app:is_animationDuration="300"
+        app:is_backgroundColor="#2CE31F"
+        app:is_drawableSize="30dp"
+        app:is_cornerRadius="0dp"
+        app:is_drawableHorizontalPadding="8dp"
+        app:is_horizontalPadding="32dp"
+        app:is_textSize="24dp"
+        app:is_textStyle="bold"
+        app:is_verticalPadding="24dp"/>
 
 </LinearLayout>

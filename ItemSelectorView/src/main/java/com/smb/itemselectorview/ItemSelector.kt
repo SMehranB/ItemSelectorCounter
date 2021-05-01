@@ -40,7 +40,7 @@ class ItemSelector : View {
     private val clickPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val backgroundPaint = Paint(Paint.ANTI_ALIAS_FLAG or TextPaint.SUBPIXEL_TEXT_FLAG)
 
-    private var mBackgroundColor: Int = Color.GRAY
+    private var mBackgroundColor: Int = Color.MAGENTA
     private val backgroundRecF = RectF()
     private var cornerRadius: Float = dpToPixel(8)
 
@@ -102,7 +102,7 @@ class ItemSelector : View {
 
             cornerRadius = getDimension(R.styleable.ItemSelector_is_cornerRadius, cornerRadius)
 
-            drawableSize = getDimension(R.styleable.ItemSelector_is_buttonSize, drawableSize.toFloat()).toInt()
+            drawableSize = getDimension(R.styleable.ItemSelector_is_drawableSize, drawableSize.toFloat()).toInt()
             drawableHorizontalPadding = getDimension(R.styleable.ItemSelector_is_drawableHorizontalPadding, 0f)
             dividerColor = getInteger(R.styleable.ItemSelector_is_dividerColor, ColorUtils.blendARGB(mBackgroundColor, Color.BLACK, 0.5f))
             drawableTint = getInteger(R.styleable.ItemSelector_is_drawableTint, drawableTint)
@@ -271,7 +271,7 @@ class ItemSelector : View {
             clickEffectClipper.set(0, 0, buttonDimensions.width.toInt(), height)
         }
 
-        val initialColor = ColorUtils.blendARGB(mBackgroundColor, Color.WHITE, 0.5f)
+        val initialColor = ColorUtils.blendARGB(mBackgroundColor, Color.WHITE, 0.7f)
 
         val clickAnimation = ValueAnimator.ofFloat(1f, 0f)
         clickAnimation.addUpdateListener {
