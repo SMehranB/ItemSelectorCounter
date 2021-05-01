@@ -1,5 +1,5 @@
 
-# Item Selector View
+# Item Selector View [![](https://jitpack.io/v/SMehranB/ItemSelectorCounter.svg)](https://jitpack.io/#SMehranB/ItemSelectorCounter)
 
 ### A customizable item selector
  
