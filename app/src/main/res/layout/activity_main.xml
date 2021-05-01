@@ -6,17 +6,19 @@
     android:orientation="vertical"
     android:background="@color/black"
     android:layout_height="match_parent"
+    android:id="@+id/viewHolder"
     tools:context=".MainActivity">
 
     <com.smb.itemselectorview.ItemSelector
-        android:layout_width="300dp"
-        android:layout_height="60dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_margin="16dp"
         app:is_textStyle="italic|bold"
         app:is_drawableHorizontalPadding="8dp"
         app:is_animationDuration="300"
         app:is_items="@array/sample_items"
         app:is_textColor="@color/white"
+        app:is_buttonSize="40dp"
         app:is_drawableTint="@color/white"
         app:is_cornerRadius="25dp"
         app:is_backgroundColor="@color/purple_200"

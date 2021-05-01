@@ -28,18 +28,21 @@ class ItemSelector : View {
         initAttributes(context, attributeSet)
     }
 
-    private var animatorSet: AnimatorSet? = null
-    var animationDuration: Long = 500
+    private enum class Direction {LEFT, RIGHT}
 
-    var verticalPadding = dpToPixel(16)
-    var horizontalPadding = dpToPixel(16)
+    private var animatorSet: AnimatorSet? = null
+    private var clickAnimatorSet: AnimatorSet? = null
+    private val clickEffectClipper = Rect()
+    var animationDuration: Long = 300
+
+    private val textPaint = TextPaint(TextPaint.ANTI_ALIAS_FLAG)
+    private val drawablePaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val clickPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val backgroundPaint = Paint(Paint.ANTI_ALIAS_FLAG or TextPaint.SUBPIXEL_TEXT_FLAG)
 
     private var mBackgroundColor: Int = Color.GRAY
-
     private val backgroundRecF = RectF()
-    var cornerRadius: Float = dpToPixel(8)
-    private val drawablePaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private var cornerRadius: Float = dpToPixel(8)
 
     private lateinit var buttonDimensions: ButtonDimensions
     private var arrowLeftBitmap: Bitmap? = null
@@ -47,27 +50,45 @@ class ItemSelector : View {
     private var drawableLeftX: Float = 0f
     private var drawableY: Float = 0f
     private var drawableRightX: Float = 0f
-    var drawableDimen: Int = dpToPixel(32).toInt()
-    var drawableHorizontalPadding: Float = 0f
+    private var drawableSize: Int = dpToPixel(32).toInt()
+    private var drawableHorizontalPadding: Float = 0f
+
     var drawableTint: Int = Color.DKGRAY
+        set(value) {
+            field = value
+            invalidate()
+        }
+
     private val dividerMargin: Float = dpToPixel(5)
     var dividerColor = Color.DKGRAY
+        set(value) {
+            field = value
+            invalidate()
+        }
+
+    var items: MutableList<String> = arrayListOf("Item 1")
+        set(value) {
+            field = value
+            currentItem = value[0]
+            requestLayout()
+        }
+
+    private var currentItem: String = items[0]
+    private var currentItemIndex: Int = 0
 
     private val textClipRecF = RectF()
     private var textHeight: Float = 0f
-    private val textPaint = TextPaint(TextPaint.ANTI_ALIAS_FLAG)
     private var textX: Float = 0f
     private var textY: Float = 0f
-    private var mText: String = "Item 1"
     private var textSize: Float = dpToPixel(16)
-    var textColor: Int = Color.DKGRAY
-    var textStyle: Int = Typeface.NORMAL
+    private var textColor: Int = Color.DKGRAY
+    private var textStyle: Int = Typeface.NORMAL
+    private var verticalPadding = dpToPixel(16)
+    private var horizontalPadding = dpToPixel(16)
 
     @FontRes
-    var textFont: Int = 0
+    private var textFont: Int = 0
 
-    private var items: MutableList<String> = arrayListOf(mText)
-    private var itemIndex: Int = 0
 
     private fun initAttributes(context: Context, attributeSet: AttributeSet?) {
 
@@ -81,7 +102,7 @@ class ItemSelector : View {
 
             cornerRadius = getDimension(R.styleable.ItemSelector_is_cornerRadius, cornerRadius)
 
-            drawableDimen = getDimension(R.styleable.ItemSelector_is_buttonSize, drawableDimen.toFloat()).toInt()
+            drawableSize = getDimension(R.styleable.ItemSelector_is_buttonSize, drawableSize.toFloat()).toInt()
             drawableHorizontalPadding = getDimension(R.styleable.ItemSelector_is_drawableHorizontalPadding, 0f)
             dividerColor = getInteger(R.styleable.ItemSelector_is_dividerColor, ColorUtils.blendARGB(mBackgroundColor, Color.BLACK, 0.5f))
             drawableTint = getInteger(R.styleable.ItemSelector_is_drawableTint, drawableTint)
@@ -96,27 +117,22 @@ class ItemSelector : View {
             val itemsArray = getResourceId(R.styleable.ItemSelector_is_items, 0)
             if (itemsArray != 0) {
                 items = resources.getStringArray(itemsArray).toMutableList()
+                currentItem = items[0]
             }
 
             recycle()
         }
 
-        val arrowLeft = ContextCompat.getDrawable(context, R.drawable.arrow_left_24)
-        val arrowRight = ContextCompat.getDrawable(context, R.drawable.arrow_right_24)
-        arrowLeft?.let { setTint(it, drawableTint) }
-        arrowRight?.let { setTint(it, drawableTint) }
-
-        arrowLeftBitmap = arrowLeft?.toBitmap(drawableDimen, drawableDimen, Bitmap.Config.ARGB_8888)
-        arrowRightBitmap = arrowRight?.toBitmap(drawableDimen, drawableDimen, Bitmap.Config.ARGB_8888)
+        buttonDimensions = ButtonDimensions()
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
 
         setTextParams()
 
-        val desiredWidth = textPaint.measureText(mText) + horizontalPadding.times(2) +
-                drawableDimen.times(2) + drawableHorizontalPadding.times(4)
-        val desiredHeight = (textHeight + verticalPadding.times(2)).coerceAtLeast(drawableDimen.toFloat())
+        val desiredWidth = textPaint.measureText(getLongestItem()) + horizontalPadding.times(2) +
+                drawableSize.times(2) + drawableHorizontalPadding.times(4)
+        val desiredHeight = (textHeight + verticalPadding.times(2)).coerceAtLeast(drawableSize.toFloat())
 
         val finalWidth = getFinalDimension(widthMeasureSpec, desiredWidth)
         val finalHeight = getFinalDimension(heightMeasureSpec, desiredHeight)
@@ -129,7 +145,7 @@ class ItemSelector : View {
         textX = width.div(2f)
         textY = height.div(2f).plus(textHeight)
 
-        setDrawableParams()
+        prepareDrawables()
         setBackgroundParams()
 
         textClipRecF.set(buttonDimensions.width, 0f, width.minus(buttonDimensions.width), height.toFloat())
@@ -141,6 +157,11 @@ class ItemSelector : View {
         canvas?.apply {
             //DRAW BACKGROUND
             drawRoundRect(backgroundRecF, cornerRadius, cornerRadius, backgroundPaint)
+
+            save()
+            clipRect(clickEffectClipper)
+            drawRoundRect(backgroundRecF, cornerRadius, cornerRadius, clickPaint)
+            restore()
 
             //DRAWING THE TWO ARROWS
             arrowLeftBitmap?.let {
@@ -157,8 +178,10 @@ class ItemSelector : View {
                     width.minus(buttonDimensions.width), height.minus(dividerMargin), drawablePaint)
 
             //LASTLY DRAW TEXT BECAUSE IT WILL BE CLIPPED
+            save()
             clipRect(textClipRecF)
-            drawText(mText, textX, textY, textPaint)
+            drawText(currentItem, textX, textY, textPaint)
+            restore()
         }
     }
 
@@ -168,19 +191,27 @@ class ItemSelector : View {
         if (event != null) {
             if (event.x in 0f..buttonDimensions.width) {
                 //tapped left
-                slideOut(textClipRecF.left - textPaint.measureText(mText).div(2))
+                clickAnimation(Direction.LEFT)
+                slideOut(Direction.LEFT)
             }else if (event.x in width.minus(buttonDimensions.width)..width.toFloat()) {
                 //tapped right
-                slideOut(textClipRecF.right.plus(textPaint.measureText(mText).div(2)))
+                clickAnimation(Direction.RIGHT)
+                slideOut(Direction.RIGHT)
             }
         }
 
         return super.onTouchEvent(event)
     }
 
-    private fun slideOut(destination: Float) {
+    private fun slideOut(direction: Direction) {
 
         animatorSet?.cancel()
+
+        val destination = if (direction == Direction.RIGHT) {
+            textClipRecF.left - textPaint.measureText(currentItem).div(2)
+        } else {
+            textClipRecF.right.plus(textPaint.measureText(currentItem).div(2))
+        }
 
         val slideAnimation = ValueAnimator.ofFloat(textX, destination)
         slideAnimation.addUpdateListener {
@@ -195,12 +226,12 @@ class ItemSelector : View {
             addListener(object : MyAnimatorListener {
                 override fun onAnimationEnd(p0: Animator?) {
                     textX = if (destination < textClipRecF.left) {
-                        mText = getPreviousItem()
-                        val textWidth = textPaint.measureText(mText)
+                        currentItem = getNextItem()
+                        val textWidth = textPaint.measureText(currentItem)
                         width.plus(textWidth)
                     }else{
-                        mText = getNextItem()
-                        val textWidth = textPaint.measureText(mText)
+                        currentItem = getPreviousItem()
+                        val textWidth = textPaint.measureText(currentItem)
                         -textWidth
                     }
                     slideIn()
@@ -211,26 +242,6 @@ class ItemSelector : View {
             start()
         }
 
-    }
-
-    private fun getNextItem(): String {
-        return if (itemIndex >= items.lastIndex) {
-            itemIndex = 0
-            items[itemIndex]
-        }else{
-            itemIndex = itemIndex.inc()
-            items[itemIndex]
-        }
-    }
-
-    private fun getPreviousItem(): String {
-        return if (itemIndex <= 0) {
-            itemIndex = items.lastIndex
-            items[itemIndex]
-        }else{
-            itemIndex = itemIndex.dec()
-            items[itemIndex]
-        }
     }
 
     private fun slideIn() {
@@ -250,32 +261,116 @@ class ItemSelector : View {
         }
     }
 
-    private fun setDrawableParams() {
-        buttonDimensions = ButtonDimensions(arrowLeftBitmap!!)
+    private fun clickAnimation(direction: Direction) {
+
+        clickAnimatorSet?.cancel()
+
+        if (direction == Direction.RIGHT) {
+            clickEffectClipper.set(width.minus(buttonDimensions.width).toInt(), 0, width, height)
+        }else{
+            clickEffectClipper.set(0, 0, buttonDimensions.width.toInt(), height)
+        }
+
+        val initialColor = ColorUtils.blendARGB(mBackgroundColor, Color.WHITE, 0.5f)
+
+        val clickAnimation = ValueAnimator.ofFloat(1f, 0f)
+        clickAnimation.addUpdateListener {
+            val factor = it.animatedValue as Float
+            clickPaint.color = ColorUtils.blendARGB(mBackgroundColor, initialColor, factor)
+            invalidate()
+        }
+
+        clickAnimatorSet = AnimatorSet()
+        clickAnimatorSet!!.apply {
+            duration = 300
+            play(clickAnimation)
+            start()
+        }
+    }
+
+    private fun getNextItem(): String {
+        return if (currentItemIndex >= items.lastIndex) {
+            currentItemIndex = 0
+            items[currentItemIndex]
+        }else{
+            currentItemIndex = currentItemIndex.inc()
+            items[currentItemIndex]
+        }
+    }
+
+    private fun getPreviousItem(): String {
+        return if (currentItemIndex <= 0) {
+            currentItemIndex = items.lastIndex
+            items[currentItemIndex]
+        }else{
+            currentItemIndex = currentItemIndex.dec()
+            items[currentItemIndex]
+        }
+    }
+
+    fun setTextPadding(verticalPaddingDp: Int = 16, horizontalPaddingDp: Int = 16) {
+        verticalPadding = dpToPixel(verticalPaddingDp)
+        horizontalPadding = dpToPixel(horizontalPaddingDp)
+        requestLayout()
+    }
+
+    fun setDrawableParams(sizeDp: Int = 32, horizontalPaddingDp: Int = 0) {
+        drawableSize = dpToPixel(sizeDp).toInt()
+        drawableHorizontalPadding = dpToPixel(horizontalPaddingDp)
+        requestLayout()
+    }
+
+    fun setBackgroundParams(backgroundColor: Int, radiusDp: Int = 8) {
+        cornerRadius = dpToPixel(radiusDp)
+        mBackgroundColor = backgroundColor
+    }
+
+    fun setTextParams(size: Int = 16, color: Int = Color.DKGRAY, style: Int = Typeface.NORMAL, @FontRes font: Int = 0) {
+        textSize = dpToPixel(size)
+        textColor = color
+        textStyle = style
+        textFont = font
+        requestLayout()
+    }
+
+    fun getCurrentItem(): String {
+        return currentItem
+    }
+
+    fun getCurrentItemIndex(): Int {
+        return currentItemIndex
+    }
+
+    private fun prepareDrawables() {
+        val arrowLeft = ContextCompat.getDrawable(context, R.drawable.arrow_left_24)
+        val arrowRight = ContextCompat.getDrawable(context, R.drawable.arrow_right_24)
+        arrowLeft?.let { setTint(it, drawableTint) }
+        arrowRight?.let { setTint(it, drawableTint) }
+
+        buttonDimensions = ButtonDimensions()
+
+        arrowLeftBitmap = arrowLeft?.toBitmap(buttonDimensions.rawWidth.toInt(), buttonDimensions.rawHeight.toInt(), Bitmap.Config.ARGB_8888)
+        arrowRightBitmap = arrowRight?.toBitmap(buttonDimensions.rawWidth.toInt(), buttonDimensions.rawHeight.toInt(), Bitmap.Config.ARGB_8888)
 
         drawablePaint.color = dividerColor
         drawablePaint.strokeWidth = dpToPixel(1)
 
-        drawableY = height.div(2f).minus(drawableDimen.div(2))
+        drawableY = height.div(2f).minus(buttonDimensions.rawHeight.div(2))
 
         drawableLeftX = drawableHorizontalPadding
-        drawableRightX = width.minus(drawableDimen).minus(drawableHorizontalPadding)
+        drawableRightX = width.minus(buttonDimensions.rawWidth).minus(drawableHorizontalPadding)
     }
 
     private fun setBackgroundParams() {
-
         backgroundRecF.set(0f, 0f, width.toFloat(), height.toFloat())
-
-        backgroundPaint.apply {
-            color = mBackgroundColor
-        }
+        backgroundPaint.color = mBackgroundColor
     }
 
     private fun setTextParams() {
-        textHeight = getTextHeight()
 
         textPaint.apply {
             textSize = this@ItemSelector.textSize
+            textHeight = getTextHeight()
             color = textColor
             textAlign = Paint.Align.CENTER
 
@@ -310,19 +405,30 @@ class ItemSelector : View {
         }
     }
 
+    private fun getLongestItem(): String {
+        var result = items[0].trim()
+        for (item in items) {
+            if (item.trim().length > result.length) {
+                result = item
+            }
+        }
+
+        return result
+    }
+
     private fun dpToPixel(dp: Int): Float {
         return dp.times(resources.displayMetrics.density)
     }
 
-    inner class ButtonDimensions (bitmap: Bitmap) {
-        private val w: Float = bitmap.width.toFloat()
-        private val h: Float = bitmap.height.toFloat()
+    inner class ButtonDimensions () {
+        var rawWidth: Float = drawableSize.toFloat()
+        var rawHeight: Float = drawableSize.toFloat()
 
-        var width: Float = w
-        var height: Float = h
+        var width: Float = rawWidth
+        var height: Float = rawHeight
 
         init {
-            width = w.plus(drawableHorizontalPadding.times(2))
+            width = rawWidth.plus(drawableHorizontalPadding.times(2))
             height = this@ItemSelector.height.toFloat()
         }
 
