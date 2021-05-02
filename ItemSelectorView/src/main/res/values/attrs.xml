@@ -22,4 +22,27 @@
         <attr name="is_animationDuration" format="integer" />
 
     </declare-styleable>
+
+    <declare-styleable name="ItemCounter">
+
+        <attr name="ic_verticalPadding" format="dimension" />
+        <attr name="ic_horizontalPadding" format="dimension" />
+        <attr name="ic_cornerRadius" format="dimension" />
+        <attr name="ic_drawableSize" format="dimension" />
+        <attr name="ic_drawableHorizontalPadding" format="dimension" />
+        <attr name="ic_dividerColor" format="color" />
+        <attr name="ic_textSize" format="dimension" />
+        <attr name="ic_textColor" format="color" />
+        <attr name="ic_textStyle" format="flags">
+            <flag name="normal" value="0" />
+            <flag name="bold" value="1" />
+            <flag name="italic" value="2" />
+        </attr>
+        <attr name="ic_textFont" format="reference" />
+        <attr name="ic_items" format="reference" />
+        <attr name="ic_backgroundColor" format="color" />
+        <attr name="ic_drawableTint" format="color" />
+        <attr name="ic_animationDuration" format="integer" />
+
+    </declare-styleable>
 </resources>

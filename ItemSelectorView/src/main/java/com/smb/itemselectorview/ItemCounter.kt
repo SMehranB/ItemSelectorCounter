@@ -20,7 +20,9 @@ import androidx.core.graphics.drawable.DrawableCompat.setTint
 import androidx.core.graphics.drawable.toBitmap
 import kotlin.math.abs
 
-class ItemSelector : View {
+
+class ItemCounter: View {
+
     constructor(context: Context): super(context) {
         initAttributes(context, null)
     }
@@ -28,7 +30,7 @@ class ItemSelector : View {
         initAttributes(context, attributeSet)
     }
 
-    private enum class Direction {LEFT, RIGHT}
+    private enum class Operation { INC, DEC }
 
     private var animatorSet: AnimatorSet? = null
     private var clickAnimatorSet: AnimatorSet? = null
@@ -40,7 +42,7 @@ class ItemSelector : View {
     private val clickPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val backgroundPaint = Paint(Paint.ANTI_ALIAS_FLAG or TextPaint.SUBPIXEL_TEXT_FLAG)
 
-    private var mBackgroundColor: Int = Color.MAGENTA
+    private var mBackgroundColor: Int = Color.LTGRAY
     private val backgroundRecF = RectF()
     private var cornerRadius: Float = dpToPixel(8)
 
@@ -66,14 +68,14 @@ class ItemSelector : View {
             invalidate()
         }
 
-    var items: MutableList<String> = arrayListOf("Item 1")
-        set(value) {
-            field = value
-            currentItem = value[0]
-            requestLayout()
-        }
+//    var items: MutableList<Int> = arrayListOf("Item 1")
+//        set(value) {
+//            field = value
+//            currentItem = value[0]
+//            requestLayout()
+//        }
 
-    private var currentItem: String = items[0]
+    private var currentNumber: Int = 0
     private var currentItemIndex: Int = 0
 
     private val textClipRecF = RectF()
@@ -92,33 +94,27 @@ class ItemSelector : View {
 
     private fun initAttributes(context: Context, attributeSet: AttributeSet?) {
 
-        val attrs = context.theme.obtainStyledAttributes(attributeSet, R.styleable.ItemSelector, 0, 0)
+        val attrs = context.theme.obtainStyledAttributes(attributeSet, R.styleable.ItemCounter, 0, 0)
         attrs.apply {
 
-            mBackgroundColor = getInteger(R.styleable.ItemSelector_is_backgroundColor, mBackgroundColor)
+            mBackgroundColor = getInteger(R.styleable.ItemCounter_ic_backgroundColor, mBackgroundColor)
 
-            verticalPadding = getDimension(R.styleable.ItemSelector_is_verticalPadding, verticalPadding)
-            horizontalPadding = getDimension(R.styleable.ItemSelector_is_horizontalPadding, horizontalPadding)
+            verticalPadding = getDimension(R.styleable.ItemCounter_ic_verticalPadding, verticalPadding)
+            horizontalPadding = getDimension(R.styleable.ItemCounter_ic_horizontalPadding, horizontalPadding)
 
-            cornerRadius = getDimension(R.styleable.ItemSelector_is_cornerRadius, cornerRadius)
+            cornerRadius = getDimension(R.styleable.ItemCounter_ic_cornerRadius, cornerRadius)
 
-            drawableSize = getDimension(R.styleable.ItemSelector_is_drawableSize, drawableSize.toFloat()).toInt()
-            drawableHorizontalPadding = getDimension(R.styleable.ItemSelector_is_drawableHorizontalPadding, 0f)
-            dividerColor = getInteger(R.styleable.ItemSelector_is_dividerColor, ColorUtils.blendARGB(mBackgroundColor, Color.BLACK, 0.5f))
-            drawableTint = getInteger(R.styleable.ItemSelector_is_drawableTint, drawableTint)
+            drawableSize = getDimension(R.styleable.ItemCounter_ic_drawableSize, drawableSize.toFloat()).toInt()
+            drawableHorizontalPadding = getDimension(R.styleable.ItemCounter_ic_drawableHorizontalPadding, 0f)
+            dividerColor = getInteger(R.styleable.ItemCounter_ic_dividerColor, ColorUtils.blendARGB(mBackgroundColor, Color.BLACK, 0.5f))
+            drawableTint = getInteger(R.styleable.ItemCounter_ic_drawableTint, drawableTint)
 
-            textSize = getDimension(R.styleable.ItemSelector_is_textSize, textSize)
-            textColor = getInteger(R.styleable.ItemSelector_is_textColor, textColor)
-            textStyle = getInt(R.styleable.ItemSelector_is_textStyle, textStyle)
-            textFont = getResourceId(R.styleable.ItemSelector_is_textFont, textFont)
+            textSize = getDimension(R.styleable.ItemCounter_ic_textSize, textSize)
+            textColor = getInteger(R.styleable.ItemCounter_ic_textColor, textColor)
+            textStyle = getInt(R.styleable.ItemCounter_ic_textStyle, textStyle)
+            textFont = getResourceId(R.styleable.ItemCounter_ic_textFont, textFont)
 
-            animationDuration = getInt(R.styleable.ItemSelector_is_animationDuration, animationDuration.toInt()).toLong()
-
-            val itemsArray = getResourceId(R.styleable.ItemSelector_is_items, 0)
-            if (itemsArray != 0) {
-                items = resources.getStringArray(itemsArray).toMutableList()
-                currentItem = items[0]
-            }
+            animationDuration = getInt(R.styleable.ItemCounter_ic_animationDuration, animationDuration.toInt()).toLong()
 
             recycle()
         }
@@ -128,7 +124,7 @@ class ItemSelector : View {
 
         setTextParams()
 
-        val desiredWidth = textPaint.measureText(getLongestItem()) + horizontalPadding.times(2) +
+        val desiredWidth = textPaint.measureText(currentNumber.toString()) + horizontalPadding.times(2) +
                 drawableSize.times(2) + drawableHorizontalPadding.times(4)
         val desiredHeight = (textHeight + verticalPadding.times(2)).coerceAtLeast(drawableSize.toFloat())
 
@@ -174,7 +170,7 @@ class ItemSelector : View {
             //LASTLY DRAW TEXT BECAUSE IT WILL BE CLIPPED
             save()
             clipRect(textClipRecF)
-            drawText(currentItem, textX, textY, textPaint)
+            drawText(currentNumber.toString(), textX, textY, textPaint)
             restore()
         }
     }
@@ -184,32 +180,34 @@ class ItemSelector : View {
 
         if (event != null) {
             if (event.x in 0f..buttonDimensions.width) {
-                //tapped left
-                clickAnimation(Direction.LEFT)
-                slideOut(Direction.LEFT)
+                //tapped to Decrement
+                clickAnimation(Operation.DEC)
+                if (currentNumber > 0) {
+                    slideOut(Operation.DEC)
+                }
             }else if (event.x in width.minus(buttonDimensions.width)..width.toFloat()) {
-                //tapped right
-                clickAnimation(Direction.RIGHT)
-                slideOut(Direction.RIGHT)
+                //tapped to Increment
+                clickAnimation(Operation.INC)
+                slideOut(Operation.INC)
             }
         }
 
         return super.onTouchEvent(event)
     }
 
-    private fun slideOut(direction: Direction) {
+    private fun slideOut(operation: Operation) {
 
         animatorSet?.cancel()
 
-        val destination = if (direction == Direction.RIGHT) {
-            textClipRecF.left - textPaint.measureText(currentItem).div(2)
+        val destination = if (operation == Operation.INC) {
+            height + textHeight
         } else {
-            textClipRecF.right.plus(textPaint.measureText(currentItem).div(2))
+            -textHeight
         }
 
-        val slideAnimation = ValueAnimator.ofFloat(textX, destination)
+        val slideAnimation = ValueAnimator.ofFloat(textY, destination)
         slideAnimation.addUpdateListener {
-            textX = it.animatedValue as Float
+            textY = it.animatedValue as Float
             invalidate()
         }
 
@@ -218,13 +216,12 @@ class ItemSelector : View {
             interpolator = AccelerateInterpolator()
             addListener(object : MyAnimatorListener {
                 override fun onAnimationEnd(p0: Animator?) {
-                    val textWidth = textPaint.measureText(currentItem)
-                    textX = if (destination < textClipRecF.left) {
-                        currentItem = getNextItem()
-                        width.plus(textWidth)
+                    textY = if (operation == Operation.INC) {
+                        currentNumber = currentNumber.inc()
+                        -textHeight
                     }else{
-                        currentItem = getPreviousItem()
-                        -textWidth
+                        currentNumber = decNumber()
+                        height.plus(textHeight)
                     }
                     slideIn()
                 }
@@ -237,9 +234,9 @@ class ItemSelector : View {
     }
 
     private fun slideIn() {
-        val slideAnimation = ValueAnimator.ofFloat(textX, width.div(2f))
+        val slideAnimation = ValueAnimator.ofFloat(textY, height.div(2f).plus(textHeight))
         slideAnimation.addUpdateListener {
-            textX = it.animatedValue as Float
+            textY = it.animatedValue as Float
             invalidate()
         }
 
@@ -252,11 +249,11 @@ class ItemSelector : View {
         }
     }
 
-    private fun clickAnimation(direction: Direction) {
+    private fun clickAnimation(operation: Operation) {
 
         clickAnimatorSet?.cancel()
 
-        if (direction == Direction.RIGHT) {
+        if (operation == Operation.INC) {
             clickEffectClipper.set(width.minus(buttonDimensions.width).toInt(), 0, width, height)
         }else{
             clickEffectClipper.set(0, 0, buttonDimensions.width.toInt(), height)
@@ -279,24 +276,11 @@ class ItemSelector : View {
         }
     }
 
-    private fun getNextItem(): String {
-        return if (currentItemIndex >= items.lastIndex) {
-            currentItemIndex = 0
-            items[currentItemIndex]
-        }else{
-            currentItemIndex = currentItemIndex.inc()
-            items[currentItemIndex]
+    private fun decNumber(): Int {
+        if (currentNumber > 0) {
+            return currentNumber.dec()
         }
-    }
-
-    private fun getPreviousItem(): String {
-        return if (currentItemIndex <= 0) {
-            currentItemIndex = items.lastIndex
-            items[currentItemIndex]
-        }else{
-            currentItemIndex = currentItemIndex.dec()
-            items[currentItemIndex]
-        }
+        return 0
     }
 
     fun setTextPadding(verticalPaddingDp: Int = 16, horizontalPaddingDp: Int = 16) {
@@ -324,8 +308,8 @@ class ItemSelector : View {
         requestLayout()
     }
 
-    fun getCurrentItem(): String {
-        return currentItem
+    fun getCurrentItem(): Int {
+        return currentNumber
     }
 
     fun getCurrentItemIndex(): Int {
@@ -333,8 +317,8 @@ class ItemSelector : View {
     }
 
     private fun prepareDrawables() {
-        val arrowLeft = ContextCompat.getDrawable(context, R.drawable.arrow_left_24)
-        val arrowRight = ContextCompat.getDrawable(context, R.drawable.arrow_right_24)
+        val arrowLeft = ContextCompat.getDrawable(context, R.drawable.minus_24)
+        val arrowRight = ContextCompat.getDrawable(context, R.drawable.plus_24)
         arrowLeft?.let { setTint(it, drawableTint) }
         arrowRight?.let { setTint(it, drawableTint) }
 
@@ -360,7 +344,7 @@ class ItemSelector : View {
     private fun setTextParams() {
 
         textPaint.apply {
-            textSize = this@ItemSelector.textSize
+            textSize = this@ItemCounter.textSize
             textHeight = getTextHeight()
             color = textColor
             textAlign = Paint.Align.CENTER
@@ -396,16 +380,16 @@ class ItemSelector : View {
         }
     }
 
-    private fun getLongestItem(): String {
-        var result = items[0].trim()
-        for (item in items) {
-            if (item.trim().length > result.length) {
-                result = item
-            }
-        }
-
-        return result
-    }
+//    private fun getLongestItem(): String {
+//        var result = items[0].trim()
+//        for (item in items) {
+//            if (item.trim().length > result.length) {
+//                result = item
+//            }
+//        }
+//
+//        return result
+//    }
 
     private fun dpToPixel(dp: Int): Float {
         return dp.times(resources.displayMetrics.density)
@@ -420,7 +404,7 @@ class ItemSelector : View {
 
         init {
             width = rawWidth.plus(drawableHorizontalPadding.times(2))
-            height = this@ItemSelector.height.toFloat()
+            height = this@ItemCounter.height.toFloat()
         }
 
     }
