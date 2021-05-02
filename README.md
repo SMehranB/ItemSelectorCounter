@@ -1,7 +1,7 @@
 
-# Item Selector View [![](https://jitpack.io/v/SMehranB/ItemSelectorCounter.svg)](https://jitpack.io/#SMehranB/ItemSelectorCounter)
+# Item Selector/Counter View [![](https://jitpack.io/v/SMehranB/ItemSelectorCounter.svg)](https://jitpack.io/#SMehranB/ItemSelectorCounter)
 
-### A customizable item selector
+### Customizable Item Selector and Item Counter
  
 ## Features!
 
@@ -19,12 +19,11 @@
  
 
 ## Screen recording
- <img src="./screen_recording1.gif" height="100">
- <img src="./screen_recording2.gif" height="100">
+ <img src="./screen_recording3.gif" height="100"> <img src="./screen_recording1.gif" height="100">
+ <img src="./screen_recording4.gif" height="200"> <img src="./screen_recording2.gif" height="100">
  <img src="./screen_recording.gif" height="600">
  
 # Install
- 
 ```groovy
 allprojects {
 	repositories {
@@ -37,7 +36,7 @@ allprojects {
 
 ```groovy
 dependencies {
-	 implementation 'com.github.SMehranB:ItemSelectorCounter:1.0.0'
+	 implementation 'com.github.SMehranB:ItemSelectorCounter:2.0.0'
 }
 ```
 
@@ -46,12 +45,14 @@ dependencies {
 <dependency>
 	<groupId>com.github.SMehranB</groupId>
 	<artifactId>ItemSelectorCounter</artifactId>
-	<version>1.0.0</version>
+	<version>2.0.0</version>
 </dependency>
  ```
 # Use
  
 ## XML
+
+### Item Selector
 ```xml
 <com.smb.itemselectorview.ItemSelector
     android:layout_width="wrap_content"
@@ -70,7 +71,32 @@ dependencies {
     app:is_backgroundColor="#2B7FFF"/>
  ```
 
+### Item Counter
+```xml
+<com.smb.itemselectorview.ItemCounter
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="16dp"
+    android:layout_marginTop="16dp"
+    app:ic_DecButtonColor="#00B6B1"
+    app:ic_IncButtonColor="#00B6B1"
+    app:ic_backgroundColor="#00FFF7"
+    app:ic_cornerRadius="10dp"
+    app:ic_drawableHorizontalPadding="8dp"
+    app:ic_drawableTint="@color/black"
+    app:ic_horizontalPadding="48dp"
+    app:ic_textColor="@color/black"
+    app:ic_textSize="18dp"
+    app:ic_textStyle="bold"
+    app:ic_animationDuration="200"
+    app:ic_dividerColor="@color/black"
+    app:ic_drawableSize="40dp"
+    app:ic_verticalPadding="20dp"/>
+```
+
 ## Kotlin
+
+### Item Selector
 ```kotlin
 val itemSelector = ItemSelector(this)
 val params = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
@@ -89,6 +115,32 @@ itemSelector.apply {
 }
 
 viewHolder.addView(itemSelector)
+```
+```kotlin
+itemSelector.getCurrentItem()
+itemSelector.getCurrentItemIndex()
+```
+
+### Item Counter
+```kotlin
+val itemCounter = ItemCounter(this)
+
+itemCounter.apply {
+    layoutParams = params
+    setTextParams(24, Color.BLACK, Typeface.BOLD)
+    setBackgroundParams(Color.WHITE, 15)
+    setDrawableParams(32, 24)
+    setTextPadding(24, 32)
+    setButtonsColor(Color.GREEN, Color.RED)
+    dividerColor = Color.GRAY
+    animationDuration = 300L
+    drawableTint = Color.BLACK
+}
+
+viewHolder.addView(itemCounter)
+```
+```kotlin
+itemCounter.getCurrentNumber()
 ```
 
 ## 📄 License

@@ -35,6 +35,5 @@ class MainActivity : AppCompatActivity() {
 
         val viewHolder = findViewById<ViewGroup>(R.id.viewHolder)
         viewHolder.addView(itemSelector)
-
     }
 }

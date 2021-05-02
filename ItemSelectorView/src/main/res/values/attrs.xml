@@ -41,7 +41,6 @@
             <flag name="italic" value="2" />
         </attr>
         <attr name="ic_textFont" format="reference" />
-        <attr name="ic_items" format="reference" />
         <attr name="ic_backgroundColor" format="color" />
         <attr name="ic_drawableTint" format="color" />
         <attr name="ic_animationDuration" format="integer" />
