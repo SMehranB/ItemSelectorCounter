@@ -31,6 +31,8 @@
         <attr name="ic_drawableSize" format="dimension" />
         <attr name="ic_drawableHorizontalPadding" format="dimension" />
         <attr name="ic_dividerColor" format="color" />
+        <attr name="ic_IncButtonColor" format="color" />
+        <attr name="ic_DecButtonColor" format="color" />
         <attr name="ic_textSize" format="dimension" />
         <attr name="ic_textColor" format="color" />
         <attr name="ic_textStyle" format="flags">

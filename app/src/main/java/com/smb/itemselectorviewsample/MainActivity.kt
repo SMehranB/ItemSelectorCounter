@@ -24,7 +24,7 @@ class MainActivity : AppCompatActivity() {
         itemSelector.apply {
             layoutParams = params
             setTextParams(24, Color.YELLOW, Typeface.BOLD)
-            setBackgroundParams(Color.RED, 25)
+            setBackgroundParams(Color.RED, 15)
             setDrawableParams(50, 32)
             setTextPadding(32, 32)
             items = arrayListOf("Short", "Tall", "Grande", "Venti")

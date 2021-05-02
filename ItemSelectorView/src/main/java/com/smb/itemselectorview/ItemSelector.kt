@@ -314,6 +314,7 @@ class ItemSelector : View {
     fun setBackgroundParams(backgroundColor: Int, radiusDp: Int = 8) {
         cornerRadius = dpToPixel(radiusDp)
         mBackgroundColor = backgroundColor
+        invalidate()
     }
 
     fun setTextParams(size: Int = 16, color: Int = Color.DKGRAY, style: Int = Typeface.NORMAL, @FontRes font: Int = 0) {

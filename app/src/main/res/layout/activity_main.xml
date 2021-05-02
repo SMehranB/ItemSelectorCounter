@@ -10,23 +10,76 @@
     android:orientation="vertical"
     tools:context=".MainActivity">
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Item Counter"
+        android:layout_margin="16dp"
+        android:layout_gravity="center_horizontal"
+        android:textColor="@color/white"
+        android:textSize="18sp"/>
+
+    <com.smb.itemselectorview.ItemCounter
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        app:ic_backgroundColor="#FFFFFF"
+        app:ic_IncButtonColor="#3EEA00"
+        app:ic_drawableTint="@color/black"
+        app:ic_textColor="@color/black"
+        app:ic_cornerRadius="30dp"
+        app:ic_drawableHorizontalPadding="8dp"
+        app:ic_horizontalPadding="48dp"
+        app:ic_textSize="18dp"
+        app:ic_textStyle="bold"
+        app:ic_verticalPadding="20dp" />
+
     <com.smb.itemselectorview.ItemCounter
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="16dp"
         android:layout_marginTop="16dp"
-        app:ic_backgroundColor="@color/design_default_color_secondary"
-        app:ic_cornerRadius="20dp"
+        app:ic_backgroundColor="#00FFF7"
+        app:ic_DecButtonColor="#00B6B1"
+        app:ic_IncButtonColor="#00B6B1"
+        app:ic_drawableTint="@color/black"
+        app:ic_textColor="@color/black"
+        app:ic_cornerRadius="10dp"
         app:ic_drawableHorizontalPadding="8dp"
-        app:ic_horizontalPadding="32dp"
+        app:ic_horizontalPadding="48dp"
         app:ic_textSize="18dp"
         app:ic_textStyle="bold"
         app:ic_verticalPadding="20dp" />
 
+    <com.smb.itemselectorview.ItemCounter
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="16dp"
+        app:ic_backgroundColor="#FF2CF4"
+        app:ic_DecButtonColor="#FF2CF4"
+        app:ic_IncButtonColor="#FF2CF4"
+        app:ic_drawableTint="@color/black"
+        app:ic_textColor="@color/black"
+        app:ic_cornerRadius="0dp"
+        app:ic_drawableHorizontalPadding="8dp"
+        app:ic_horizontalPadding="48dp"
+        app:ic_textSize="18dp"
+        app:ic_textStyle="bold"
+        app:ic_verticalPadding="20dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Item Selector"
+        android:layout_margin="16dp"
+        android:layout_gravity="center_horizontal"
+        android:textColor="@color/white"
+        android:textSize="18sp"/>
+
     <com.smb.itemselectorview.ItemSelector
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
         app:is_animationDuration="300"
         app:is_backgroundColor="#2B7FFF"
         app:is_cornerRadius="25dp"
