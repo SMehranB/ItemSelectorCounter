@@ -16,18 +16,19 @@
  •   Set animation duration
  
  •   Button click listeners are built-in so you don't have to worry about anything
- 
+
+ •   Set shadow for the view
 
 ## Screen recording
 ### Item Counter
  <img src="./screen_recording3.gif" height="100">
  <img src="./screen_recording4.gif" height="200">
- 
+
 ### Item Selector
  <img src="./screen_recording2.gif" height="100">
  <img src="./screen_recording1.gif" height="100">
  <img src="./screen_recording.gif" height="600">
- 
+
 # Install
 ```groovy
 allprojects {
@@ -41,7 +42,7 @@ allprojects {
 
 ```groovy
 dependencies {
-	 implementation 'com.github.SMehranB:ItemSelectorCounter:2.0.0'
+	 implementation 'com.github.SMehranB:ItemSelectorCounter:2.1.0'
 }
 ```
 
@@ -50,7 +51,7 @@ dependencies {
 <dependency>
 	<groupId>com.github.SMehranB</groupId>
 	<artifactId>ItemSelectorCounter</artifactId>
-	<version>2.0.0</version>
+	<version>2.1.0</version>
 </dependency>
  ```
 # Use
@@ -68,6 +69,10 @@ dependencies {
     app:is_verticalPadding="24dp"
     app:is_horizontalPadding="32dp"
     app:is_animationDuration="300"
+    app:is_shadowColor="#4A4A4A"
+    app:is_shadowDx="10"
+    app:is_shadowDy="10"
+    app:is_shadowRadius="15"
     app:is_items="@array/sample_items"
     app:is_textColor="@color/white"
     app:is_buttonSize="30dp"
@@ -87,6 +92,10 @@ dependencies {
     app:ic_IncButtonColor="#00B6B1"
     app:ic_backgroundColor="#00FFF7"
     app:ic_cornerRadius="10dp"
+    app:ic_shadowColor="#4A4A4A"
+    app:ic_shadowDx="10"
+    app:ic_shadowDy="10"
+    app:ic_shadowRadius="15"
     app:ic_drawableHorizontalPadding="8dp"
     app:ic_drawableTint="@color/black"
     app:ic_horizontalPadding="48dp"
@@ -113,6 +122,7 @@ itemSelector.apply {
     setBackgroundParams(Color.RED, 25)
     setDrawableParams(50, 32)
     setTextPadding(32, 32)
+    setShadowParams(Color.GRAY, 10f, 10f, 10f)
     items = arrayListOf("Short", "Tall", "Grande", "Venti")
     dividerColor = Color.GRAY
     animationDuration = 300L
@@ -137,6 +147,7 @@ itemCounter.apply {
     setDrawableParams(32, 24)
     setTextPadding(24, 32)
     setButtonsColor(Color.GREEN, Color.RED)
+    setShadowParams(Color.GRAY, 10f, 10f, 10f)
     dividerColor = Color.GRAY
     animationDuration = 300L
     drawableTint = Color.BLACK

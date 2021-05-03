@@ -16,7 +16,7 @@
         android:layout_gravity="center_horizontal"
         android:layout_margin="16dp"
         android:text="Item Counter"
-        android:textColor="@color/white"
+        android:textColor="@color/black"
         android:textSize="18sp"
         android:textStyle="bold" />
 
@@ -27,7 +27,11 @@
         app:ic_IncButtonColor="#3EEA00"
         app:ic_backgroundColor="#D6D6D6"
         app:ic_cornerRadius="30dp"
-        app:ic_drawableHorizontalPadding="8dp"
+        app:ic_shadowColor="#4A4A4A"
+        app:ic_shadowDx="10"
+        app:ic_shadowDy="10"
+        app:ic_shadowRadius="10"
+        app:ic_drawableHorizontalPadding="16dp"
         app:ic_drawableTint="@color/black"
         app:ic_horizontalPadding="48dp"
         app:ic_textColor="@color/black"
@@ -59,6 +63,10 @@
         app:ic_DecButtonColor="#FF2CF4"
         app:ic_IncButtonColor="#FF2CF4"
         app:ic_backgroundColor="#FF2CF4"
+        app:ic_shadowColor="#4A4A4A"
+        app:ic_shadowDx="10"
+        app:ic_shadowDy="10"
+        app:ic_shadowRadius="10"
         app:ic_cornerRadius="0dp"
         app:ic_drawableSize="48dp"
         app:ic_drawableHorizontalPadding="8dp"
@@ -75,7 +83,7 @@
         android:layout_gravity="center_horizontal"
         android:layout_margin="16dp"
         android:text="Item Selector"
-        android:textColor="@color/white"
+        android:textColor="@color/black"
         android:textSize="18sp"
         android:textStyle="bold" />
 

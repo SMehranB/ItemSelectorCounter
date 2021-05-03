@@ -57,6 +57,12 @@ class ItemCounter: View {
 
     //BACKGROUND PROPERTIES
     private var mBackgroundColor: Int = Color.LTGRAY
+    private var mShadowColor: Int = 0
+    private var mShadowDy: Float = 0f
+    private var mShadowDx: Float = 0f
+    private var mShadowRadius: Float = 0f
+    private var shadowHorizontalMargin: Float = 0f
+    private var shadowVerticalMargin: Float = 0f
     private val backgroundRecF = RectF()
     private var cornerRadius: Float = dpToPixel(8)
 
@@ -101,6 +107,12 @@ class ItemCounter: View {
         attrs.apply {
 
             mBackgroundColor = getInteger(R.styleable.ItemCounter_ic_backgroundColor, mBackgroundColor)
+            mShadowColor = getInteger(R.styleable.ItemCounter_ic_shadowColor, 0)
+            mShadowDx = getFloat(R.styleable.ItemCounter_ic_shadowDx, 0f)
+            mShadowDy = getFloat(R.styleable.ItemCounter_ic_shadowDy, 0f)
+            mShadowRadius = getFloat(R.styleable.ItemCounter_ic_shadowRadius, 0f)
+            shadowHorizontalMargin = mShadowDx.plus(mShadowRadius)
+            shadowVerticalMargin = mShadowDy.plus(mShadowRadius)
 
             verticalPadding = getDimension(R.styleable.ItemCounter_ic_verticalPadding, verticalPadding)
             horizontalPadding = getDimension(R.styleable.ItemCounter_ic_horizontalPadding, horizontalPadding)
@@ -130,8 +142,8 @@ class ItemCounter: View {
         prepareText()
 
         val desiredWidth = textPaint.measureText(currentNumber.toString()) + horizontalPadding.times(2) +
-                drawableSize.times(2) + drawableHorizontalPadding.times(4)
-        val desiredHeight = (textHeight + verticalPadding.times(2)).coerceAtLeast(drawableSize.toFloat())
+                drawableSize.times(2) + drawableHorizontalPadding.times(4) + shadowHorizontalMargin
+        val desiredHeight = (textHeight + verticalPadding.times(2)).coerceAtLeast(drawableSize.toFloat()) + shadowVerticalMargin
 
         val finalWidth = getFinalDimension(widthMeasureSpec, desiredWidth)
         val finalHeight = getFinalDimension(heightMeasureSpec, desiredHeight)
@@ -141,13 +153,13 @@ class ItemCounter: View {
 
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
 
-        textX = width.div(2f)
-        textY = height.div(2f).plus(textHeight)
+        textX = width.minus(shadowHorizontalMargin).div(2f)
+        textY = height.minus(shadowVerticalMargin).div(2f).plus(textHeight)
 
         prepareDrawables()
         prepareBackground()
 
-        textClipRecF.set(buttonDimensions.width, 0f, width.minus(buttonDimensions.width), height.toFloat())
+        textClipRecF.set(buttonDimensions.width, 0f, width.minus(buttonDimensions.width), height.minus(shadowVerticalMargin).toFloat())
 
         super.onLayout(changed, left, top, right, bottom)
     }
@@ -185,9 +197,9 @@ class ItemCounter: View {
 
             //DRAWING DIVIDERS
             drawLine(buttonDimensions.width, dividerMargin,
-                    buttonDimensions.width, height.minus(dividerMargin), drawablePaint)
-            drawLine(width.minus(buttonDimensions.width), dividerMargin,
-                    width.minus(buttonDimensions.width), height.minus(dividerMargin), drawablePaint)
+                    buttonDimensions.width, height.minus(dividerMargin).minus(shadowHorizontalMargin), drawablePaint)
+            drawLine(width.minus(buttonDimensions.width).minus(shadowHorizontalMargin), dividerMargin,
+                    width.minus(buttonDimensions.width).minus(shadowHorizontalMargin), height.minus(dividerMargin).minus(shadowVerticalMargin), drawablePaint)
 
             //DRAWING TEXT
             save()
@@ -207,7 +219,7 @@ class ItemCounter: View {
                 if (currentNumber > 0) {
                     slideOut(Operation.DEC)
                 }
-            }else if (event.x in width.minus(buttonDimensions.width)..width.toFloat()) {
+            }else if (event.x in width.minus(buttonDimensions.width).minus(shadowHorizontalMargin)..width.minus(shadowHorizontalMargin)) {
                 //tapped to Increment
                 clickAnimation(Operation.INC)
                 slideOut(Operation.INC)
@@ -256,7 +268,7 @@ class ItemCounter: View {
     }
 
     private fun slideIn() {
-        val slideAnimation = ValueAnimator.ofFloat(textY, height.div(2f).plus(textHeight))
+        val slideAnimation = ValueAnimator.ofFloat(textY, height.minus(shadowVerticalMargin).div(2f).plus(textHeight))
         slideAnimation.addUpdateListener {
             textY = it.animatedValue as Float
             invalidate()
@@ -277,7 +289,7 @@ class ItemCounter: View {
 
         val targetColor: Int
         val originalColor = if (operation == Operation.INC) {
-            clickEffectClipper.set(width.minus(buttonDimensions.width).toInt(), 0, width, height)
+            clickEffectClipper.set(width.minus(buttonDimensions.width).minus(shadowHorizontalMargin).toInt(), 0, width.minus(shadowHorizontalMargin).toInt(), height)
             targetColor = incButtonColor
             ColorUtils.blendARGB(incButtonColor, Color.WHITE, 0.7f)
         }else{
@@ -325,6 +337,17 @@ class ItemCounter: View {
         invalidate()
     }
 
+    fun setShadowParams(@ColorInt color: Int, dx: Float, dy: Float, radius: Float) {
+        mShadowRadius = radius
+        mShadowDx = dx
+        mShadowDy = dy
+        mShadowColor = color
+        shadowHorizontalMargin = dx.plus(radius)
+        shadowVerticalMargin = dy.plus(radius)
+        backgroundPaint.setShadowLayer(mShadowRadius, mShadowDx, mShadowDy, mShadowColor)
+        requestLayout()
+    }
+
     fun setTextParams(sizeDp: Int = 16, @ColorInt color: Int = Color.DKGRAY, style: Int = Typeface.NORMAL, @FontRes font: Int = 0) {
         textSize = dpToPixel(sizeDp)
         textColor = color
@@ -351,20 +374,29 @@ class ItemCounter: View {
         drawablePaint.color = dividerColor
         drawablePaint.strokeWidth = dpToPixel(1)
 
-        drawableY = height.div(2f).minus(buttonDimensions.rawHeight.div(2))
+        drawableY = height.minus(shadowVerticalMargin).div(2f).minus(buttonDimensions.rawHeight.div(2))
 
         drawableLeftX = drawableHorizontalPadding
-        drawableRightX = width.minus(buttonDimensions.rawWidth).minus(drawableHorizontalPadding)
+        drawableRightX = width.minus(shadowHorizontalMargin).minus(buttonDimensions.rawWidth).minus(drawableHorizontalPadding)
 
-        incButtonRecF.set(width.minus(buttonDimensions.width).minus(cornerRadius), 0f, width.toFloat(), height.toFloat())
-        decButtonRecF.set(0f, 0f, buttonDimensions.width.plus(cornerRadius), height.toFloat())
-        incButtonClipper.set(width.minus(buttonDimensions.width).toInt(), 0, width, height)
+        val incButtonClipperLeft = width.minus(buttonDimensions.width).minus(shadowHorizontalMargin).toInt()
+        val incButtonClipperRight = width.minus(shadowHorizontalMargin)
+        val buttonsBottom = height.minus(shadowVerticalMargin)
+        incButtonRecF.set(incButtonClipperLeft.minus(cornerRadius), 0f, incButtonClipperRight, buttonsBottom)
+        incButtonClipper.set(incButtonClipperLeft, 0, incButtonClipperRight.toInt(), height)
+
+        decButtonRecF.set(0f, 0f, buttonDimensions.width.plus(cornerRadius), buttonsBottom)
         decButtonClipper.set(0, 0, buttonDimensions.width.toInt(), height)
     }
 
     private fun prepareBackground() {
-        backgroundRecF.set(0f, 0f, width.toFloat(), height.toFloat())
-        backgroundPaint.color = mBackgroundColor
+        backgroundRecF.set(0f, 0f, width.minus(shadowHorizontalMargin), height.minus(shadowVerticalMargin))
+        backgroundPaint.apply {
+            color = mBackgroundColor
+            if (mShadowColor != 0) {
+                setShadowLayer(mShadowRadius, mShadowDx, mShadowDy, mShadowColor)
+            }
+        }
     }
 
     private fun prepareText() {
