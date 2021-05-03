@@ -2,6 +2,10 @@
 <resources>
     <declare-styleable name="ItemSelector">
 
+        <attr name="is_shadowColor" format="color" />
+        <attr name="is_shadowRadius" format="float" />
+        <attr name="is_shadowDx" format="float" />
+        <attr name="is_shadowDy" format="float" />
         <attr name="is_verticalPadding" format="dimension" />
         <attr name="is_horizontalPadding" format="dimension" />
         <attr name="is_cornerRadius" format="dimension" />
@@ -24,7 +28,10 @@
     </declare-styleable>
 
     <declare-styleable name="ItemCounter">
-
+        <attr name="ic_shadowColor" format="color" />
+        <attr name="ic_shadowRadius" format="float" />
+        <attr name="ic_shadowDx" format="float" />
+        <attr name="ic_shadowDy" format="float" />
         <attr name="ic_verticalPadding" format="dimension" />
         <attr name="ic_horizontalPadding" format="dimension" />
         <attr name="ic_cornerRadius" format="dimension" />

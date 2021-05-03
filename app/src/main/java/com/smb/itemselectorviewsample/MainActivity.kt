@@ -27,6 +27,7 @@ class MainActivity : AppCompatActivity() {
             setBackgroundParams(Color.RED, 15)
             setDrawableParams(50, 32)
             setTextPadding(32, 32)
+            setShadowParams(Color.GRAY, 10f, 10f, 10f)
             items = arrayListOf("Short", "Tall", "Grande", "Venti")
             dividerColor = Color.GRAY
             animationDuration = 300L

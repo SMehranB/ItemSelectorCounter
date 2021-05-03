@@ -12,6 +12,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.DecelerateInterpolator
+import androidx.annotation.ColorInt
 import androidx.annotation.FontRes
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
@@ -41,6 +42,12 @@ class ItemSelector : View {
     private val backgroundPaint = Paint(Paint.ANTI_ALIAS_FLAG or TextPaint.SUBPIXEL_TEXT_FLAG)
 
     private var mBackgroundColor: Int = Color.MAGENTA
+    private var mShadowColor: Int = 0
+    private var mShadowDy: Float = 0f
+    private var mShadowDx: Float = 0f
+    private var mShadowRadius: Float = 0f
+    private var shadowHorizontalMargin: Float = 0f
+    private var shadowVerticalMargin: Float = 0f
     private val backgroundRecF = RectF()
     private var cornerRadius: Float = dpToPixel(8)
 
@@ -66,7 +73,7 @@ class ItemSelector : View {
             invalidate()
         }
 
-    var items: MutableList<String> = arrayListOf("Item 1")
+    var items: MutableList<String> = arrayListOf("Item 1", "Item 2", "Item 3")
         set(value) {
             field = value
             currentItem = value[0]
@@ -96,6 +103,12 @@ class ItemSelector : View {
         attrs.apply {
 
             mBackgroundColor = getInteger(R.styleable.ItemSelector_is_backgroundColor, mBackgroundColor)
+            mShadowColor = getInteger(R.styleable.ItemSelector_is_shadowColor, 0)
+            mShadowDx = getFloat(R.styleable.ItemSelector_is_shadowDx, 0f)
+            mShadowDy = getFloat(R.styleable.ItemSelector_is_shadowDy, 0f)
+            mShadowRadius = getFloat(R.styleable.ItemSelector_is_shadowRadius, 0f)
+            shadowHorizontalMargin = mShadowDx.plus(mShadowRadius)
+            shadowVerticalMargin = mShadowDy.plus(mShadowRadius)
 
             verticalPadding = getDimension(R.styleable.ItemSelector_is_verticalPadding, verticalPadding)
             horizontalPadding = getDimension(R.styleable.ItemSelector_is_horizontalPadding, horizontalPadding)
@@ -129,8 +142,8 @@ class ItemSelector : View {
         setTextParams()
 
         val desiredWidth = textPaint.measureText(getLongestItem()) + horizontalPadding.times(2) +
-                drawableSize.times(2) + drawableHorizontalPadding.times(4)
-        val desiredHeight = (textHeight + verticalPadding.times(2)).coerceAtLeast(drawableSize.toFloat())
+                drawableSize.times(2) + drawableHorizontalPadding.times(4) + shadowHorizontalMargin
+        val desiredHeight = (textHeight + verticalPadding.times(2)).coerceAtLeast(drawableSize.toFloat()) + shadowVerticalMargin
 
         val finalWidth = getFinalDimension(widthMeasureSpec, desiredWidth)
         val finalHeight = getFinalDimension(heightMeasureSpec, desiredHeight)
@@ -140,13 +153,13 @@ class ItemSelector : View {
 
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
 
-        textX = width.div(2f)
-        textY = height.div(2f).plus(textHeight)
+        textX = width.minus(shadowHorizontalMargin).div(2f)
+        textY = height.minus(shadowVerticalMargin).div(2f).plus(textHeight)
 
         prepareDrawables()
         setBackgroundParams()
 
-        textClipRecF.set(buttonDimensions.width, 0f, width.minus(buttonDimensions.width), height.toFloat())
+        textClipRecF.set(buttonDimensions.width, 0f, width.minus(buttonDimensions.width).minus(shadowHorizontalMargin), height.toFloat())
 
         super.onLayout(changed, left, top, right, bottom)
     }
@@ -167,9 +180,9 @@ class ItemSelector : View {
 
             //DRAWING DIVIDERS
             drawLine(buttonDimensions.width, dividerMargin,
-                    buttonDimensions.width, height.minus(dividerMargin), drawablePaint)
-            drawLine(width.minus(buttonDimensions.width), dividerMargin,
-                    width.minus(buttonDimensions.width), height.minus(dividerMargin), drawablePaint)
+                    buttonDimensions.width, backgroundRecF.bottom.minus(dividerMargin), drawablePaint)
+            drawLine(backgroundRecF.right.minus(buttonDimensions.width), dividerMargin,
+                    backgroundRecF.right.minus(buttonDimensions.width), backgroundRecF.bottom.minus(dividerMargin), drawablePaint)
 
             //LASTLY DRAW TEXT BECAUSE IT WILL BE CLIPPED
             save()
@@ -183,11 +196,12 @@ class ItemSelector : View {
     override fun onTouchEvent(event: MotionEvent?): Boolean {
 
         if (event != null) {
+
             if (event.x in 0f..buttonDimensions.width) {
                 //tapped left
                 clickAnimation(Direction.LEFT)
                 slideOut(Direction.LEFT)
-            }else if (event.x in width.minus(buttonDimensions.width)..width.toFloat()) {
+            }else if (event.x in width.minus(buttonDimensions.width).minus(shadowHorizontalMargin)..width.minus(shadowHorizontalMargin)) {
                 //tapped right
                 clickAnimation(Direction.RIGHT)
                 slideOut(Direction.RIGHT)
@@ -237,7 +251,7 @@ class ItemSelector : View {
     }
 
     private fun slideIn() {
-        val slideAnimation = ValueAnimator.ofFloat(textX, width.div(2f))
+        val slideAnimation = ValueAnimator.ofFloat(textX, width.minus(shadowHorizontalMargin).div(2f))
         slideAnimation.addUpdateListener {
             textX = it.animatedValue as Float
             invalidate()
@@ -257,7 +271,8 @@ class ItemSelector : View {
         clickAnimatorSet?.cancel()
 
         if (direction == Direction.RIGHT) {
-            clickEffectClipper.set(width.minus(buttonDimensions.width).toInt(), 0, width, height)
+            clickEffectClipper.set(width.minus(buttonDimensions.width).minus(shadowHorizontalMargin).toInt(),
+                    0, width.minus(shadowHorizontalMargin).toInt(), height)
         }else{
             clickEffectClipper.set(0, 0, buttonDimensions.width.toInt(), height)
         }
@@ -317,6 +332,17 @@ class ItemSelector : View {
         invalidate()
     }
 
+    fun setShadowParams(@ColorInt color: Int, dx: Float, dy: Float, radius: Float) {
+        mShadowRadius = radius
+        mShadowDx = dx
+        mShadowDy = dy
+        mShadowColor = color
+        shadowHorizontalMargin = dx.plus(radius)
+        shadowVerticalMargin = dy.plus(radius)
+        backgroundPaint.setShadowLayer(mShadowRadius, mShadowDx, mShadowDy, mShadowColor)
+        requestLayout()
+    }
+
     fun setTextParams(size: Int = 16, color: Int = Color.DKGRAY, style: Int = Typeface.NORMAL, @FontRes font: Int = 0) {
         textSize = dpToPixel(size)
         textColor = color
@@ -347,15 +373,21 @@ class ItemSelector : View {
         drawablePaint.color = dividerColor
         drawablePaint.strokeWidth = dpToPixel(1)
 
-        drawableY = height.div(2f).minus(buttonDimensions.rawHeight.div(2))
+        drawableY = height.minus(shadowVerticalMargin).div(2f).minus(buttonDimensions.rawHeight.div(2))
 
         drawableLeftX = drawableHorizontalPadding
-        drawableRightX = width.minus(buttonDimensions.rawWidth).minus(drawableHorizontalPadding)
+        drawableRightX = width.minus(shadowHorizontalMargin).minus(buttonDimensions.rawWidth).minus(drawableHorizontalPadding)
     }
 
     private fun setBackgroundParams() {
-        backgroundRecF.set(0f, 0f, width.toFloat(), height.toFloat())
-        backgroundPaint.color = mBackgroundColor
+        backgroundRecF.set(0f, 0f, width.minus(shadowHorizontalMargin), height.minus(shadowVerticalMargin))
+        backgroundPaint.apply {
+            color = mBackgroundColor
+            if (mShadowColor != 0) {
+                setShadowLayer(mShadowRadius, mShadowDx, mShadowDy, mShadowColor)
+            }
+        }
+
     }
 
     private fun setTextParams() {
