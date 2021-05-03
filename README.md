@@ -20,13 +20,7 @@
  •   Set shadow for the view
 
 ## Screen recording
-### Item Counter
- <img src="./screen_recording3.gif" height="100">
- <img src="./screen_recording4.gif" height="200">
-
-### Item Selector
- <img src="./screen_recording2.gif" height="100">
- <img src="./screen_recording1.gif" height="100">
+ <img src="./screen_recording1.gif" height="200"> <img src="./screen_recording2.gif" height="200">
  <img src="./screen_recording.gif" height="600">
 
 # Install
