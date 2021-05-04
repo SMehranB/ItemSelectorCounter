@@ -82,7 +82,9 @@ class ItemSelector : View {
 
     private var currentItem: String = items[0]
 
+    //currentItemIndex is decremented or incremented at the end of the animation
     private var currentItemIndex: Int = 0
+    //currentItemIndexDecoy is decremented or incremented instantly
     private var currentItemIndexDecoy: Int = 0
 
     private val textClipRecF = RectF()
