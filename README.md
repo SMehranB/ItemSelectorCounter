@@ -18,6 +18,8 @@
  •   Button click listeners are built-in so you don't have to worry about anything
 
  •   Set shadow for the view
+ 
+ •   Set ButtonClickListeners 
 
 ## Screen recording
  <img src="./screen_recording1.gif" height="300"> <img src="./screen_recording2.gif" height="300">
@@ -36,7 +38,7 @@ allprojects {
 
 ```groovy
 dependencies {
-	 implementation 'com.github.SMehranB:ItemSelectorCounter:2.1.0'
+	 implementation 'com.github.SMehranB:ItemSelectorCounter:2.1.1'
 }
 ```
 
@@ -45,7 +47,7 @@ dependencies {
 <dependency>
 	<groupId>com.github.SMehranB</groupId>
 	<artifactId>ItemSelectorCounter</artifactId>
-	<version>2.1.0</version>
+	<version>2.1.1</version>
 </dependency>
  ```
 # Use
@@ -128,6 +130,16 @@ viewHolder.addView(itemSelector)
 ```kotlin
 itemSelector.getCurrentItem()
 itemSelector.getCurrentItemIndex()
+
+itemSelector.setOnButtonClickListener(object : ItemSelector.OnButtonClickListener {
+    override fun onLeftClicked(view: ItemSelector, oldItem: String, newItem: String, newItemIndex: Int) {
+        
+    }
+
+    override fun onRightClicked(view: ItemSelector, oldItem: String, newItem: String, newItemIndex: Int) {
+        
+    }
+})
 ```
 
 ### Item Counter
@@ -151,8 +163,17 @@ viewHolder.addView(itemCounter)
 ```
 ```kotlin
 itemCounter.getCurrentNumber()
-```
 
+itemCounter.setOnButtonClickListener(object : ItemCounter.OnButtonClickListener{
+    override fun onDecrement(view: ItemCounter, currentNumber: Int) {
+        
+    }
+
+    override fun onIncrement(view: ItemCounter, currentNumber: Int) {
+        
+    }
+})
+```
 ## 📄 License
 ```text
 MIT License

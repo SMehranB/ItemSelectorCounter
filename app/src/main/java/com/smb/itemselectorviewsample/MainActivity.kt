@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.util.TypedValue
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.smb.itemselectorview.ItemSelector
 
@@ -16,6 +17,16 @@ class MainActivity : AppCompatActivity() {
 
         val iSelector = findViewById<ItemSelector>(R.id.pizzaSizes)
         iSelector.items = arrayListOf("Small", "Medium", "Large")
+        iSelector.setOnButtonClickListener(object : ItemSelector.OnButtonClickListener {
+            override fun onLeftClicked(view: ItemSelector, oldItem: String, newItem: String, newItemIndex: Int) {
+                Toast.makeText(this@MainActivity, "Left CLicked FROM $oldItem TO $newItem AT $newItemIndex", Toast.LENGTH_LONG).show()
+            }
+
+            override fun onRightClicked(view: ItemSelector, oldItem: String, newItem: String, newItemIndex: Int) {
+                Toast.makeText(this@MainActivity, "Right CLicked FROM $oldItem TO $newItem AT $newItemIndex", Toast.LENGTH_LONG).show()
+            }
+        })
+
 
         val itemSelector = ItemSelector(this)
         val params = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)

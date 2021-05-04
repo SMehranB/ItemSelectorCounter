@@ -98,7 +98,13 @@ class ItemCounter: View {
     private var horizontalPadding = dpToPixel(16)
     @FontRes
     private var textFont: Int = 0
+
+    //currentNumber is decremented or incremented at the end of the animation
     private var currentNumber: Int = 0
+    //currentNumberDecoy is decremented or incremented instantly
+    private var currentNumberDecoy: Int = 0
+
+    private var onButtonClickListener: OnButtonClickListener? = null
 
 
     private fun initAttributes(context: Context, attributeSet: AttributeSet?) {
@@ -215,12 +221,16 @@ class ItemCounter: View {
         if (event != null) {
             if (event.x in 0f..buttonDimensions.width) {
                 //tapped to Decrement
+                currentNumberDecoy = decNumber(currentNumberDecoy)
+                onButtonClickListener?.onDecrement(this, currentNumberDecoy)
                 clickAnimation(Operation.DEC)
                 if (currentNumber > 0) {
                     slideOut(Operation.DEC)
                 }
             }else if (event.x in width.minus(buttonDimensions.width).minus(shadowHorizontalMargin)..width.minus(shadowHorizontalMargin)) {
                 //tapped to Increment
+                currentNumberDecoy = currentNumberDecoy.inc()
+                onButtonClickListener?.onIncrement(this, currentNumberDecoy)
                 clickAnimation(Operation.INC)
                 slideOut(Operation.INC)
             }
@@ -254,7 +264,7 @@ class ItemCounter: View {
                         currentNumber = currentNumber.inc()
                         -textHeight
                     }else{
-                        currentNumber = decNumber()
+                        currentNumber = decNumber(currentNumber)
                         height.plus(textHeight)
                     }
                     slideIn()
@@ -357,7 +367,11 @@ class ItemCounter: View {
     }
 
     fun getCurrentNumber(): Int {
-        return currentNumber
+        return currentNumberDecoy
+    }
+
+    fun setOnButtonClickListener(itemSelectorButtonClickListener: OnButtonClickListener) {
+        onButtonClickListener = itemSelectorButtonClickListener
     }
 
     private fun prepareDrawables() {
@@ -438,9 +452,9 @@ class ItemCounter: View {
         }
     }
 
-    private fun decNumber(): Int {
-        if (currentNumber > 0) {
-            return currentNumber.dec()
+    private fun decNumber(number: Int): Int {
+        if (number > 0) {
+            return number.dec()
         }
         return 0
     }
@@ -449,7 +463,12 @@ class ItemCounter: View {
         return dp.times(resources.displayMetrics.density)
     }
 
-    inner class ButtonDimensions () {
+    interface OnButtonClickListener {
+        fun onDecrement(view: ItemCounter, currentNumber: Int)
+        fun onIncrement(view: ItemCounter, currentNumber: Int)
+    }
+
+    private inner class ButtonDimensions () {
         var rawWidth: Float = drawableSize.toFloat()
         var rawHeight: Float = drawableSize.toFloat()
 

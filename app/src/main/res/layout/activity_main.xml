@@ -21,6 +21,7 @@
         android:textStyle="bold" />
 
     <com.smb.itemselectorview.ItemCounter
+        android:id="@+id/itemCounter"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="16dp"

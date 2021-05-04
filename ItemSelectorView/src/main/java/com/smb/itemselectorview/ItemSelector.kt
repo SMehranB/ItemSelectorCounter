@@ -81,7 +81,9 @@ class ItemSelector : View {
         }
 
     private var currentItem: String = items[0]
+
     private var currentItemIndex: Int = 0
+    private var currentItemIndexDecoy: Int = 0
 
     private val textClipRecF = RectF()
     private var textHeight: Float = 0f
@@ -95,6 +97,8 @@ class ItemSelector : View {
 
     @FontRes
     private var textFont: Int = 0
+
+    private var onButtonClickListener: OnButtonClickListener? = null
 
 
     private fun initAttributes(context: Context, attributeSet: AttributeSet?) {
@@ -184,7 +188,7 @@ class ItemSelector : View {
             drawLine(backgroundRecF.right.minus(buttonDimensions.width), dividerMargin,
                     backgroundRecF.right.minus(buttonDimensions.width), backgroundRecF.bottom.minus(dividerMargin), drawablePaint)
 
-            //LASTLY DRAW TEXT BECAUSE IT WILL BE CLIPPED
+            //DRAW TEXT
             save()
             clipRect(textClipRecF)
             drawText(currentItem, textX, textY, textPaint)
@@ -196,13 +200,14 @@ class ItemSelector : View {
     override fun onTouchEvent(event: MotionEvent?): Boolean {
 
         if (event != null) {
-
             if (event.x in 0f..buttonDimensions.width) {
                 //tapped left
+                onButtonClickListener?.onLeftClicked(this, items[currentItemIndexDecoy], items[decAssignDecoyIndex()], currentItemIndexDecoy)
                 clickAnimation(Direction.LEFT)
                 slideOut(Direction.LEFT)
             }else if (event.x in width.minus(buttonDimensions.width).minus(shadowHorizontalMargin)..width.minus(shadowHorizontalMargin)) {
                 //tapped right
+                onButtonClickListener?.onRightClicked(this, items[currentItemIndexDecoy], items[incAssignDecoyIndex()], currentItemIndexDecoy)
                 clickAnimation(Direction.RIGHT)
                 slideOut(Direction.RIGHT)
             }
@@ -234,10 +239,10 @@ class ItemSelector : View {
                 override fun onAnimationEnd(p0: Animator?) {
                     val textWidth = textPaint.measureText(currentItem)
                     textX = if (destination < textClipRecF.left) {
-                        currentItem = getNextItem()
+                        currentItem = items[incAssignItemIndex()]
                         width.plus(textWidth)
                     }else{
-                        currentItem = getPreviousItem()
+                        currentItem = items[decAssignItemIndex()]
                         -textWidth
                     }
                     slideIn()
@@ -247,7 +252,6 @@ class ItemSelector : View {
             play(slideAnimation)
             start()
         }
-
     }
 
     private fun slideIn() {
@@ -294,23 +298,43 @@ class ItemSelector : View {
         }
     }
 
-    private fun getNextItem(): String {
-        return if (currentItemIndex >= items.lastIndex) {
-            currentItemIndex = 0
-            items[currentItemIndex]
+    private fun decAssignItemIndex(): Int {
+        return if (currentItemIndex <= 0) {
+            currentItemIndex = items.lastIndex
+            currentItemIndex
         }else{
-            currentItemIndex = currentItemIndex.inc()
-            items[currentItemIndex]
+            currentItemIndex = currentItemIndex.dec()
+            currentItemIndex
         }
     }
 
-    private fun getPreviousItem(): String {
-        return if (currentItemIndex <= 0) {
-            currentItemIndex = items.lastIndex
-            items[currentItemIndex]
+    private fun decAssignDecoyIndex(): Int {
+        return if (currentItemIndexDecoy <= 0) {
+            currentItemIndexDecoy = items.lastIndex
+            currentItemIndexDecoy
         }else{
-            currentItemIndex = currentItemIndex.dec()
-            items[currentItemIndex]
+            currentItemIndexDecoy = currentItemIndexDecoy.dec()
+            currentItemIndexDecoy
+        }
+    }
+
+    private fun incAssignDecoyIndex(): Int {
+        return if (currentItemIndexDecoy >= items.lastIndex) {
+            currentItemIndexDecoy = 0
+            currentItemIndexDecoy
+        }else{
+            currentItemIndexDecoy = currentItemIndexDecoy.inc()
+            currentItemIndexDecoy
+        }
+    }
+
+    private fun incAssignItemIndex(): Int {
+        return if (currentItemIndex >= items.lastIndex) {
+            currentItemIndex = 0
+            currentItemIndex
+        }else{
+            currentItemIndex = currentItemIndex.inc()
+            currentItemIndex
         }
     }
 
@@ -357,6 +381,10 @@ class ItemSelector : View {
 
     fun getCurrentItemIndex(): Int {
         return currentItemIndex
+    }
+
+    fun setOnButtonClickListener(itemSelectorButtonClickListener: OnButtonClickListener) {
+        onButtonClickListener = itemSelectorButtonClickListener
     }
 
     private fun prepareDrawables() {
@@ -444,7 +472,12 @@ class ItemSelector : View {
         return dp.times(resources.displayMetrics.density)
     }
 
-    inner class ButtonDimensions () {
+    interface OnButtonClickListener {
+        fun onLeftClicked(view: ItemSelector, oldItem: String, newItem: String, newItemIndex: Int)
+        fun onRightClicked(view: ItemSelector, oldItem: String, newItem: String, newItemIndex: Int)
+    }
+
+    private inner class ButtonDimensions () {
         var rawWidth: Float = drawableSize.toFloat()
         var rawHeight: Float = drawableSize.toFloat()
 
